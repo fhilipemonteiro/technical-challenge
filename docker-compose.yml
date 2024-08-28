@@ -4,13 +4,15 @@ services:
     container_name: db_mysql
     environment:
       MYSQL_ROOT_PASSWORD: password123
-      MYSQL_DATABASE: aquagasmeter
-      MYSQL_USER: user123
-      MYSQL_PASSWORD: user123
+      MYSQL_DATABASE: shopper
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password123
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
       - app_network
+    ports:
+      - "3306:3306"
 
   app:
     build:
@@ -22,11 +24,15 @@ services:
     depends_on:
       - db
     environment:
-      DATABASE_URL: mysql://user123:user123@db:3306/aquagasmeter
+      DATABASE_URL: mysql://user:password123@db:3306/shopper
+      DB_HOST: db
+      DB_USER: user
+      DB_PASSWORD: password123
+      DB_NAME: shopper
       PORT: 80
     volumes:
       - .:/app
-    command: ["npm", "run", "start"]
+    command: ["npm", "run", "dev"]
     networks:
       - app_network
 
