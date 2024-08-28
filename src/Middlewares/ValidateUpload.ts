@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import UploadSchema from '@Schemas/UploadSchema';
-import HttpError from '@Helpers/Http/HttpError';
+import HttpError from '@Helpers/Http/Error';
 
 const validateUpload = (req: Request, res: Response, next: NextFunction) => {
   try {
