@@ -4,7 +4,11 @@
     "module": "commonjs",                    
     "baseUrl": "./src",
     "paths": {
-      "@routes/*": ["routes/*"],
+      "@Routes/*": ["Routes/*"],
+      "@Schemas/*": ["Schemas/*"],
+      "@Middlewares/*": ["Middlewares/*"],
+      "@Helpers/*": ["Helpers/*"],
+      "@Configs/*": ["Configs/*"],
     },
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
