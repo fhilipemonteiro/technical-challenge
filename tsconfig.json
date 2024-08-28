@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES2023",
+    "outDir": "./dist",
+    "target": "es2022",
     "module": "commonjs",                    
     "baseUrl": "./src",
     "paths": {
