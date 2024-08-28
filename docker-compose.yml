@@ -11,8 +11,6 @@ services:
       - mysql_data:/var/lib/mysql
     networks:
       - app_network
-    ports:
-      - "3306:3306"
 
   app:
     build:
@@ -32,7 +30,7 @@ services:
       PORT: 80
     volumes:
       - .:/app
-    command: ["npm", "run", "dev"]
+    command: ["sh", "-c", "npm install && npm run dev"]
     networks:
       - app_network
 
