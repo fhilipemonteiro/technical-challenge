@@ -1,8 +1,8 @@
-import MySQL from '@Configs/MySQL';
+import { RowDataPacket, FieldPacket } from "mysql2";
 import { v4 as uuid } from 'uuid';
+import MySQL from '@Configs/MySQL';
 import Logger from '@Helpers/Logger';
 import FormatDate from '@Helpers/FormatDate';
-import { RowDataPacket, FieldPacket } from "mysql2";
 
 interface IGeminiRepository {
   createMeasure(props: ICreateMeasure): Promise<void>;
@@ -14,7 +14,6 @@ interface ICreateMeasure {
   measure_datetime: string;
   measure_type: string;
   image_url: string;
-  measure_value: null;
   customer_code: string;
 }
 
@@ -36,8 +35,9 @@ class GeminiRepository implements IGeminiRepository {
         measure_type,
         image_url,
         measure_value,
-        customer_code
-      ) VALUES (?, ?, ?, ?, ?, ?)
+        customer_code,
+        has_confirmed
+      ) VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
   
     const values = [
@@ -45,8 +45,9 @@ class GeminiRepository implements IGeminiRepository {
       this.formatDate.formatDateTime(props.measure_datetime),
       props.measure_type,
       props.image_url,
-      props.measure_value,
-      props.customer_code
+      null,
+      props.customer_code,
+      false
     ];
   
     try {
