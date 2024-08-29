@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import UploadSchema from '@Schemas/UploadSchema';
-import HttpError from '@Helpers/Http/Error';
+import HttpError from '@Helpers/HttpError';
+
+const httpError = new HttpError();
 
 const validateUpload = (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -10,7 +12,7 @@ const validateUpload = (req: Request, res: Response, next: NextFunction) => {
   } catch (error) {
     if (error instanceof z.ZodError) {
       const errorMessage = error.errors.map((err) => err.message);
-      return HttpError.BadRequest(res, {
+      return httpError.BadRequest(res, {
         error_code: 'INVALID_DATA',
         error_description: errorMessage,
       });
