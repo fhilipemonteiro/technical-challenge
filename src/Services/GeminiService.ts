@@ -1,9 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { GoogleAIFileManager } from "@google/generative-ai/server";
-import sharp from 'sharp';
 import ImageTemp from '@Helpers/ImageTemp';
 import Env from '@Helpers/Env';
-import getTypeImage from "../Helpers/GetTypeImage";
+import getTypeImage from '@Helpers/GetTypeImage';
 
 interface ResponseUploadImage {
   uri: string;
