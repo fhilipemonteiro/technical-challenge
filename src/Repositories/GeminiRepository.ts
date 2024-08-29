@@ -1,18 +1,20 @@
-import { RowDataPacket, FieldPacket } from "mysql2";
-import { v4 as uuid } from 'uuid';
+import { RowDataPacket, FieldPacket, ResultSetHeader } from "mysql2";
 import MySQL from '@Configs/MySQL';
 import Logger from '@Helpers/Logger';
 import FormatDate from '@Helpers/FormatDate';
 
 interface IGeminiRepository {
   createMeasure(props: ICreateMeasure): Promise<void>;
-  checkMeasureExists(customer_code: string, measure_type: string,measure_datetime: string): Promise<boolean>;
+  checkExistsMeasureOfThePeriod(customer_code: string, measure_type: string,measure_datetime: string): Promise<boolean>;
+  checkExistsMeasure(measure_uuid: string): Promise<boolean>;
+  confirmMeasure(measure_uuid: string, measure_value: number): Promise<boolean>;
 }
 
 interface ICreateMeasure {
   measure_uuid: string;
   measure_datetime: string;
   measure_type: string;
+  measure_value: number;
   image_url: string;
   customer_code: string;
 }
@@ -41,11 +43,11 @@ class GeminiRepository implements IGeminiRepository {
     `;
   
     const values = [
-      uuid(),
+      props.measure_uuid,
       this.formatDate.formatDateTime(props.measure_datetime),
       props.measure_type,
       props.image_url,
-      null,
+      props.measure_value,
       props.customer_code,
       false
     ];
@@ -60,8 +62,7 @@ class GeminiRepository implements IGeminiRepository {
     }
   }
 
-  public async checkMeasureExists(customer_code: string, measure_type: string,measure_datetime: string): Promise<boolean> {
-
+  public async checkExistsMeasureOfThePeriod(customer_code: string, measure_type: string,measure_datetime: string): Promise<boolean> {
     const month = this.formatDate.getMonth(measure_datetime);
     const year = this.formatDate.getYear(measure_datetime);
 
@@ -87,6 +88,46 @@ class GeminiRepository implements IGeminiRepository {
     }
   }
 
+  public async checkExistsMeasure(measure_uuid: string): Promise<boolean> {
+    const query = `
+      SELECT COUNT(*) AS count
+      FROM measurements
+      WHERE measure_uuid = ?
+    `;
+  
+    const values = [measure_uuid];
+  
+    try {
+      const [rows]: [RowDataPacket[], FieldPacket[]] = await this.db.query()(query, values);
+      const count = rows[0].count as number;
+      return count > 0;
+    } catch (error) {
+      Logger.error('Error checking if measure exists');
+      Logger.error(error);
+      throw error;
+    }
+  }
+
+  public async confirmMeasure(measure_uuid: string, measure_value: number): Promise<boolean> {
+    const query = `
+      UPDATE measurements
+      SET measure_value = ?,
+      has_confirmed = ?
+      WHERE measure_uuid = ?
+    `;
+  
+    const values = [measure_value, true, measure_uuid];
+  
+    try {
+      const [rows]: [ResultSetHeader, FieldPacket[]] = await this.db.query()(query, values);
+      const affectedRows = rows.affectedRows as number;
+      return affectedRows > 0;
+    } catch (error) {
+      Logger.error('Measurement confirmation failed');
+      Logger.error(error);
+      throw error;
+    }
+  }
 }
 
 export default GeminiRepository;
