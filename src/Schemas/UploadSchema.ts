@@ -16,7 +16,9 @@ const UploadSchema = z.object({
   measure_datetime: z.string({
     required_error: `field 'measure_datetime' is required`,
     invalid_type_error: `field 'measure_datetime' must be a string`,
-  }).date(),
+  }).datetime(
+    `field 'measure_datetime' must be a valid date string`
+  ),
   
   measure_type: z.enum([`WATER`, `GAS`], {
     required_error: `field 'measure_type' is required`,
