@@ -42,6 +42,7 @@
     "@Configs": "src/Configs",
     "@Services": "src/Services",
     "@Controllers": "src/Controllers",
+    "@Repositories": "src/Repositories",
     "@Env": "src/Schemas/EnvSchema.ts"
   }
 }

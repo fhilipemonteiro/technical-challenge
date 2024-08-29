@@ -12,6 +12,7 @@
       "@Configs/*": ["Configs/*"],
       "@Services/*": ["Services/*"],
       "@Controllers/*": ["Controllers/*"],
+      "@Repositories/*": ["Repositories/*"],
       "@Env/*": ["Schemas/EnvSchema.ts"],
     },
     "esModuleInterop": true,
