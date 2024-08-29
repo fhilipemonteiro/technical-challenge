@@ -11,7 +11,7 @@ const config = {
 
 interface IMySQL {
   connect: () => Promise<void>;
-  query: () => (sql: string, values?: any[]) => Promise<[RowDataPacket[], FieldPacket[]]>;
+  query: () => (sql: string, values?: any[]) => Promise<any>;
   createTableIfNotExists: () => Promise<void>;
 }
 
@@ -33,7 +33,7 @@ class MySQL implements IMySQL {
     }
   }
 
-  public query(): (sql: string, values?: any[]) => Promise<[RowDataPacket[], FieldPacket[]]> {
+  public query(): (sql: string, values?: any[]) => Promise<any> {
     return this._mysql.promise().query.bind(this._mysql.promise());
   }
 
