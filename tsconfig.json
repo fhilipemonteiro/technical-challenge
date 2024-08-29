@@ -6,7 +6,7 @@
     "baseUrl": "./src",
     "paths": {
       "@Routes/*": ["Routes/*"],
-      "@Schemas/*": ["Schemas/*"],
+      "@Schemas/*": ["Schemas"],
       "@Middlewares/*": ["Middlewares/*"],
       "@Helpers/*": ["Helpers/*"],
       "@Configs/*": ["Configs/*"],

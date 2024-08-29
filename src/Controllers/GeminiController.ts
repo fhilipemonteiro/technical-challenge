@@ -2,13 +2,14 @@ import { Request, Response } from "express";
 import { v4 as uuid } from 'uuid';
 import GeminiRepository from "@Repositories/GeminiRepository";
 import GeminiService from "@Services/GeminiService";
-import { UploadDTO, UploadResponseDTO } from "@Routes/GeminiDTO";
+import { ConfirmDTO, ConfirmResponseDTO, UploadDTO, UploadResponseDTO } from "@Routes/GeminiDTO";
 import HttpError from "@Helpers/HttpError";
 import HttpResponse from "@Helpers/HttpResponse";
 import logger from "@Helpers/Logger";
 
 interface IGeminiController {
   createMeasure: (req: Request, res: Response) => Promise<Response>;
+  // confirmMeasure: (req: Request, res: Response) => Promise<Response>;
 }
 
 class GeminiController implements IGeminiController {
@@ -29,7 +30,7 @@ class GeminiController implements IGeminiController {
     const { image, customer_code, measure_datetime, measure_type }: UploadDTO = req.body;
 
     try {
-      const existsMeasure = await this.geminiRepository.checkMeasureExists(customer_code, measure_type, measure_datetime);
+      const existsMeasure = await this.geminiRepository.checkExistsMeasureOfThePeriod(customer_code, measure_type, measure_datetime);
 
       if (existsMeasure) {
         return this.httpError.Duplicate(res, {
@@ -40,11 +41,11 @@ class GeminiController implements IGeminiController {
 
       const uploadImage = await this.geminiService.uploadImage(image);
 
-      const consumeMeasure = await this.geminiService.analysisConsumeMeter(uploadImage.mimeType, uploadImage.uri);
+      const consumption = await this.geminiService.analysisConsumeMeter(uploadImage.mimeType, uploadImage.uri);
 
       const response: UploadResponseDTO = {
         image_url: uploadImage.uri,
-        measure_value: consumeMeasure,
+        measure_value: consumption,
         measure_uuid: uuid(),
       };
 
@@ -53,8 +54,39 @@ class GeminiController implements IGeminiController {
         measure_type,
         customer_code,
         image_url: response.image_url,
+        measure_value: response.measure_value,
         measure_uuid: response.measure_uuid
       });
+
+      return this.httpResponse.Ok(res, response);
+    } catch (error) {
+      logger.error('Erro interno no servidor');
+      logger.error(error);
+      return this.httpError.InternalServerError(res, {
+        error_code: 'INTERNAL_SERVER_ERROR',
+        error_description: 'Erro interno no servidor'
+      });
+    }
+  }
+
+  async confirmMeasure(req: Request, res: Response): Promise<Response> {
+    const { measure_uuid, confirmed_value }: ConfirmDTO = req.body;
+
+    try {
+      const existsMeasure = await this.geminiRepository.checkExistsMeasure(measure_uuid);
+      
+      if (!existsMeasure) {
+        return this.httpError.NotFound(res, {
+          error_code: 'MEASURE_NOT_FOUND',
+          error_description: 'Leitura do mês já realizada'
+        });
+      }
+
+      const confirmMeasure = await this.geminiRepository.confirmMeasure(measure_uuid, confirmed_value);
+
+      const response: ConfirmResponseDTO = {
+        success: confirmMeasure
+      };
 
       return this.httpResponse.Ok(res, response);
     } catch (error) {
