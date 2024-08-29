@@ -1,23 +1,26 @@
 import mysql, { FieldPacket, RowDataPacket } from 'mysql2';
-import Logger from '@Helpers/Logs/Logger'
+import Logger from '@Helpers/Logger'
+import Env from '@Helpers/Env';
 
 const config = {
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  host: Env.DB_HOST,
+  user: Env.DB_USER,
+  password: Env.DB_PASSWORD,
+  database: Env.DB_NAME,
 };
 
-export class MySQL {
+interface IMySQL {
+  connect: () => Promise<void>;
+  query: () => (sql: string, values?: any[]) => Promise<[RowDataPacket[], FieldPacket[]]>;
+  createTableIfNotExists: () => Promise<void>;
+}
+
+class MySQL implements IMySQL {
 
   private _mysql: mysql.Pool;
 
   constructor() {
     this._mysql = mysql.createPool(config);
-  }
-
-  public query(): (sql: string, values?: any[]) => Promise<[RowDataPacket[], FieldPacket[]]> {
-    return this._mysql.promise().query.bind(this._mysql.promise());
   }
 
   public async connect() {
@@ -30,6 +33,10 @@ export class MySQL {
     }
   }
 
+  public query(): (sql: string, values?: any[]) => Promise<[RowDataPacket[], FieldPacket[]]> {
+    return this._mysql.promise().query.bind(this._mysql.promise());
+  }
+
   public async createTableIfNotExists() {
     const query = `
       CREATE TABLE IF NOT EXISTS measurements (
@@ -37,7 +44,7 @@ export class MySQL {
       measure_datetime DATETIME NOT NULL,
       measure_type ENUM('WATER', 'GAS') NOT NULL,
       image_url TEXT NOT NULL,
-      measure_value INT NOT NULL,
+      measure_value INT NULL,
       customer_code VARCHAR(255) NOT NULL,
       has_confirmed BOOLEAN DEFAULT false)
     `;
@@ -52,4 +59,4 @@ export class MySQL {
   }
 }
 
-export default new MySQL();
+export default MySQL;
