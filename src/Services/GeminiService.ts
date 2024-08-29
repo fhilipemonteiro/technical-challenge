@@ -14,7 +14,7 @@ interface IGemini {
   analysisConsumeMeter: (mimeType: string, fileUri: string) => Promise<number>;
 };
 
-export class GeminiService implements IGemini {
+class GeminiService implements IGemini {
 
   private fileManager: GoogleAIFileManager;
   private generativeAI: GoogleGenerativeAI;
@@ -72,3 +72,5 @@ export class GeminiService implements IGemini {
     return Number(consumeMatch);
   }
 }
+
+export default GeminiService;
