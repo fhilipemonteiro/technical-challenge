@@ -4,16 +4,16 @@ import HttpError from '@Helpers/HttpError';
 
 const httpError = new HttpError();
 
-const validateDataReceived = (schema: ZodSchema) => {
+const validateDataReceived = (schema: ZodSchema, error_code: string) => {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
-      schema.parse(req.body);
+      schema.parse(req);
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {
         const errorMessage = error.errors.map((err) => err.message);
         return httpError.BadRequest(res, {
-          error_code: 'INVALID_DATA',
+          error_code,
           error_description: errorMessage,
         });
       }
