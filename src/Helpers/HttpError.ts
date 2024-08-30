@@ -7,7 +7,7 @@ interface IMessageError {
 
 interface IHttpError {
   BadRequest: (res: Response, error: IMessageError) => Response;
-  Duplicate: (res: Response, error: IMessageError) => Response;
+  Conflict: (res: Response, error: IMessageError) => Response;
   NotFound: (res: Response, error: IMessageError) => Response;
   InternalServerError: (res: Response, error: IMessageError) => Response;
 }
@@ -20,7 +20,7 @@ class HttpError implements IHttpError {
     });
   }
 
-  public Duplicate(res: Response, error: IMessageError): Response {
+  public Conflict(res: Response, error: IMessageError): Response {
     return res.status(409).json({
       error_code: error.error_code,
       error_description: error.error_description,
